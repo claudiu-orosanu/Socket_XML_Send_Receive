@@ -152,46 +152,38 @@ namespace Socket_XML_Send_Receive
 
                             };
                             Array.Copy(rcvBuffer_full, 4, rcvBuffer_partial, 0, totalBytesReceived - 4);
+
+                            byte[] rcvBuffer;
+                            int totalBytesRcv;
                             if (checkBox1.Checked)
                             {
-                                string stringFromBytes;
-                                if (StringConverter.TryGetStringWithPrefix( rcvBuffer_partial
-                                                       , totalBytesReceived - 4
-                                                       , (SchemaValidationRequired) && CheckSchemaValidationExists()
-                                                       , out stringFromBytes
-                                                       , encodingType
-                                                       , schemaValidationText
-                                                       , this))
-                                {
-                                    WriteMessageFromClientToGui(stringFromBytes);
-                                }
-                                else
-                                {
-                                    Debug("SERVER: eroare parsare XML via schema inclusa in antet");
-                                }
-
-                                Debug("SERVER: receptionat " + (totalBytesReceived - 4) + " bytes");
+                                rcvBuffer = rcvBuffer_partial;
+                                totalBytesRcv = totalBytesReceived - 4;
                             }
                             else
                             {
-                                string stringFromBytes;
-                                if (StringConverter.TryGetStringWithPrefix( rcvBuffer_full
-                                                       , totalBytesReceived
-                                                       , (SchemaValidationRequired) && CheckSchemaValidationExists()
-                                                       , out stringFromBytes
-                                                       , encodingType
-                                                       , schemaValidationText
-                                                       , this))
-                                {
-                                    WriteMessageFromClientToGui(stringFromBytes);
-                                }
-                                else
-                                {
-                                    Debug("SERVER: eroare parsare XML via schema inclusa in antet");
-                                }
+                                rcvBuffer = rcvBuffer_full;
+                                totalBytesRcv = totalBytesReceived;
+                            }
 
-                                Debug("SERVER: receptionat " + totalBytesReceived + " bytes");
-                            };
+                            string stringFromBytes;
+                            if (StringConverter.TryGetStringWithPrefix( rcvBuffer
+                                                    , totalBytesRcv
+                                                    , (SchemaValidationRequired) && CheckSchemaValidationExists()
+                                                    , out stringFromBytes
+                                                    , encodingType
+                                                    , schemaValidationText
+                                                    , this))
+                            {
+                                WriteMessageFromClientToGui(stringFromBytes);
+                            }
+                            else
+                            {
+                                Debug("SERVER: eroare parsare XML via schema inclusa in antet");
+                            }
+
+                            Debug("SERVER: receptionat " + (totalBytesRcv) + " bytes");
+                            
                         };
                         if (client1 != null)
                         {
