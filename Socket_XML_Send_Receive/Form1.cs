@@ -29,6 +29,9 @@ namespace Socket_XML_Send_Receive
         private static bool isValid = true;      // validare cu schema a unui XML
         // XmlSchemaCollection cache = new XmlSchemaCollection(); //cache XSD schema
         // cache.Add("urn:MyNamespace", "C:\\MyFolder\\Product.xsd"); // add namespace XSD schema
+        private bool SchemaValidationRequired = false;
+        private string encodingType;
+        private string schemaValidationText;
 
 
         // metode complementare
@@ -58,6 +61,17 @@ namespace Socket_XML_Send_Receive
             richTextBox3.AppendText(dt + " - " + str + ".\n");
             richTextBox3.ScrollToCaret();
         }
+        private void WriteMessageFromClientToGui(string str)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(() => WriteMessageFromClientToGui(str)));
+                return;
+            }
+
+            richTextBox2.AppendText(str);
+        }
+
         public void MyValidationEventHandler(object sender, ValidationEventArgs args)
         {
             isValid = false;
@@ -130,11 +144,12 @@ namespace Socket_XML_Send_Receive
                             ClientIP_int = (client1.RemoteEndPoint.ToString()).Split(':')[0];
                             while ((bytesRcvd = client1.Receive(rcvBuffer_full, 0, rcvBuffer_full.Length, SocketFlags.None)) > 0)
                             {
-                                if (totalBytesReceived >= rcvBuffer_full.Length)
+                                totalBytesReceived += bytesRcvd;
+                                if (totalBytesReceived >= 0)
                                 {
                                     break;
                                 };
-                                totalBytesReceived += bytesRcvd;
+
                             };
                             Array.Copy(rcvBuffer_full, 4, rcvBuffer_partial, 0, totalBytesReceived - 4);
                             if (checkBox1.Checked)
@@ -142,13 +157,13 @@ namespace Socket_XML_Send_Receive
                                 string stringFromBytes;
                                 if (StringConverter.TryGetStringWithPrefix( rcvBuffer_partial
                                                        , totalBytesReceived - 4
-                                                       , (checkBox2.Checked) && (label11.Text != "")
+                                                       , (SchemaValidationRequired) && CheckSchemaValidationExists()
                                                        , out stringFromBytes
-                                                       , comboBox1.Text
-                                                       , label11.Text
+                                                       , encodingType
+                                                       , schemaValidationText
                                                        , this))
                                 {
-                                    richTextBox2.Text = stringFromBytes;
+                                    WriteMessageFromClientToGui(stringFromBytes);
                                 }
                                 else
                                 {
@@ -162,13 +177,13 @@ namespace Socket_XML_Send_Receive
                                 string stringFromBytes;
                                 if (StringConverter.TryGetStringWithPrefix( rcvBuffer_full
                                                        , totalBytesReceived
-                                                       , (checkBox2.Checked) && (label11.Text != "")
+                                                       , (SchemaValidationRequired) && CheckSchemaValidationExists()
                                                        , out stringFromBytes
-                                                       ,comboBox1.Text
-                                                       , label11.Text
+                                                       , encodingType
+                                                       , schemaValidationText
                                                        , this))
                                 {
-                                    richTextBox2.Text = stringFromBytes;
+                                    WriteMessageFromClientToGui(stringFromBytes);
                                 }
                                 else
                                 {
@@ -186,7 +201,7 @@ namespace Socket_XML_Send_Receive
                     }
                     catch (Exception ex)
                     {
-                        //Debug(ex.ToString());
+                        Debug(ex.ToString());
                     }
                     finally
                     {
@@ -246,6 +261,7 @@ namespace Socket_XML_Send_Receive
         {
             if (checkBox2.Checked)
             {
+                SchemaValidationRequired = true;
                 button5.Enabled = true;
                 button2.Enabled = true;
                 richTextBox1.ReadOnly = true;
@@ -254,6 +270,7 @@ namespace Socket_XML_Send_Receive
             }
             else
             {
+                SchemaValidationRequired = false;
                 button5.Enabled = false;
                 button2.Enabled = false;
                 button7.Enabled = true;
@@ -372,6 +389,17 @@ namespace Socket_XML_Send_Receive
                 };
             };
         }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            encodingType = comboBox1.Text;
+        }
+
+        private void label11_TextChanged(object sender, EventArgs e)
+        {
+            schemaValidationText = label11.Text;
+        }
+
         private void button7_Click(object sender, EventArgs e)
         {
             richTextBox1.Clear();
@@ -387,6 +415,18 @@ namespace Socket_XML_Send_Receive
             {
                 button3_Click(sender, e);
             };
+        }
+        private bool CheckSchemaValidationExists()
+        {
+            if (InvokeRequired)
+            {
+               return (bool)Invoke(new Func<bool>(() => CheckSchemaValidationExists()));
+            }
+            else
+            {
+                return !String.IsNullOrEmpty(label11.Text);
+            }
+
         }
     }
 }

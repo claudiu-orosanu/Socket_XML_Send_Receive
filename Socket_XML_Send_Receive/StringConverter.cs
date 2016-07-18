@@ -82,10 +82,6 @@ namespace Socket_XML_Send_Receive
             }
         }
 
-       
-
-
-
     }
 
     public interface IForm

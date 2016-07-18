@@ -260,6 +260,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 21);
             this.comboBox1.TabIndex = 1;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // checkBox1
             // 
@@ -310,6 +311,7 @@
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(276, 66);
             this.label11.TabIndex = 26;
+            this.label11.TextChanged += new System.EventHandler(this.label11_TextChanged);
             // 
             // button6
             // 
