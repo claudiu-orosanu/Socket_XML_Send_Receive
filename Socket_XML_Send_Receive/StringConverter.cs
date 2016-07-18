@@ -53,11 +53,11 @@ namespace Socket_XML_Send_Receive
             return contentBytes;
         }
 
-        public static bool TryGetStringWithPrefix(byte[] rcvBuffer_partial, int bytesReceived, bool shouldValidateSchema,
-                                           out string result, string encoding, string content, IForm form)
+        public static bool TryGetStringFromBytes(byte[] rcvBuffer_partial, int bytesReceived, bool shouldValidateSchema,
+                                           out string result, string encoding, string schemaValidationText, IForm form)
         {
             result = null;
-            if (shouldValidateSchema && !form.Validation(content))
+            if (shouldValidateSchema && !form.Validation(schemaValidationText))
             {
                 return false;
             }

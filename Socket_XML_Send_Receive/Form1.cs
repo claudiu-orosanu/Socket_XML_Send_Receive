@@ -167,7 +167,7 @@ namespace Socket_XML_Send_Receive
                             }
 
                             string stringFromBytes;
-                            if (StringConverter.TryGetStringWithPrefix( rcvBuffer
+                            if (StringConverter.TryGetStringFromBytes( rcvBuffer
                                                     , totalBytesRcv
                                                     , (SchemaValidationRequired) && CheckSchemaValidationExists()
                                                     , out stringFromBytes
