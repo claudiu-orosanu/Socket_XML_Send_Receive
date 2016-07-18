@@ -15,7 +15,7 @@ using System.Xml.Schema; // for XmlSchemaCollection
 
 namespace Socket_XML_Send_Receive
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, IForm
     {
         // variabile, constante
         private Socket client1, server1;
@@ -63,7 +63,7 @@ namespace Socket_XML_Send_Receive
             isValid = false;
             Debug("SERVER: Validation event\n" + args.Message);
         }
-        private bool Validation(string file)
+        public bool Validation(string file)
         {
             XmlTextReader r = new XmlTextReader(file);
             XmlValidatingReader v = new XmlValidatingReader(r);
@@ -140,10 +140,13 @@ namespace Socket_XML_Send_Receive
                             if (checkBox1.Checked)
                             {
                                 string stringFromBytes;
-                                if (TryGetBytesWithPrefix( rcvBuffer_partial
+                                if (StringConverter.TryGetStringWithPrefix( rcvBuffer_partial
                                                        , totalBytesReceived - 4
                                                        , (checkBox2.Checked) && (label11.Text != "")
-                                                       , out stringFromBytes))
+                                                       , out stringFromBytes
+                                                       , comboBox1.Text
+                                                       , label11.Text
+                                                       , this))
                                 {
                                     richTextBox2.Text = stringFromBytes;
                                 }
@@ -157,10 +160,13 @@ namespace Socket_XML_Send_Receive
                             else
                             {
                                 string stringFromBytes;
-                                if (TryGetBytesWithPrefix( rcvBuffer_full
+                                if (StringConverter.TryGetStringWithPrefix( rcvBuffer_full
                                                        , totalBytesReceived
                                                        , (checkBox2.Checked) && (label11.Text != "")
-                                                       , out stringFromBytes))
+                                                       , out stringFromBytes
+                                                       ,comboBox1.Text
+                                                       , label11.Text
+                                                       , this))
                                 {
                                     richTextBox2.Text = stringFromBytes;
                                 }
@@ -193,38 +199,7 @@ namespace Socket_XML_Send_Receive
             };
         }
 
-        private bool TryGetBytesWithPrefix( byte[] rcvBuffer_partial
-                                       , int bytesReceived
-                                       , bool shouldValidateSchema
-                                       , out string result)
-        {
-            result = null;
-            if (shouldValidateSchema && !Validation(label11.Text))
-            {
-                return false;
-            }
-            result = GetEncoding(comboBox1.Text).GetString(rcvBuffer_partial, 0, bytesReceived);
-            return true;
-           
-        }
-
-        private Encoding GetEncoding(string encodingType)
-        {
-            switch(encodingType)
-            {
-                case "ASCII":
-                    return Encoding.ASCII;
-                case "UTF7":
-                    return Encoding.UTF7;
-                case "UTF8":
-                    return Encoding.UTF8;
-                case "Unicode":
-                    return Encoding.Unicode;
-                default:
-                    throw new ArgumentException("Parametrul encodingType nu este bun", nameof(encodingType));
-            }
-        }
-
+        
         private void Sender(bool shouldAddLengthPrefix,string encoding, string content)
         {
             ip_ext = textBox1.Text;

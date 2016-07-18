@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Xml.Schema;
 
 namespace Socket_XML_Send_Receive
 {
-    public static class StringConverter
+    public class StringConverter
     {
         public static byte[] GetBytesToSend(string encoding
                                     , string content
@@ -51,5 +52,45 @@ namespace Socket_XML_Send_Receive
             };
             return contentBytes;
         }
+
+        public static bool TryGetStringWithPrefix(byte[] rcvBuffer_partial, int bytesReceived, bool shouldValidateSchema,
+                                           out string result, string encoding, string content, IForm form)
+        {
+            result = null;
+            if (shouldValidateSchema && !form.Validation(content))
+            {
+                return false;
+            }
+            result = GetEncoding(encoding).GetString(rcvBuffer_partial, 0, bytesReceived);
+            return true;
+        }
+
+        private static Encoding GetEncoding(string encodingType)
+        {
+            switch (encodingType)
+            {
+                case "ASCII":
+                    return Encoding.ASCII;
+                case "UTF7":
+                    return Encoding.UTF7;
+                case "UTF8":
+                    return Encoding.UTF8;
+                case "Unicode":
+                    return Encoding.Unicode;
+                default:
+                    throw new ArgumentException("Parametrul encodingType nu este bun", nameof(encodingType));
+            }
+        }
+
+       
+
+
+
+    }
+
+    public interface IForm
+    {
+        void MyValidationEventHandler(object sender, ValidationEventArgs args);
+        bool Validation(string file);
     }
 }
