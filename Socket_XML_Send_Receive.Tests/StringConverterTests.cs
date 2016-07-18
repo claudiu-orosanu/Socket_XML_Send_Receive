@@ -27,8 +27,13 @@ namespace Socket_XML_Send_Receive.Tests
         [Test]
         public void ConvertsToStringFromBytes()
         {
-
+            byte[] bytes = { 97, 115, 100, 115 };
+            string stringReceived;
+            var result = StringConverter.TryGetStringWithPrefix(bytes, 4, false, out stringReceived, "ASCII", null, null);
+            Assert.That(stringReceived, Is.EqualTo("asds"));
+            Assert.That(result, Is.True);
         }
+
 
     }
 
